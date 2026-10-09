@@ -1,1 +1,89 @@
-# Face-Texture
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    a-scene {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <a-scene
+    mindar-face="faceOccluder: false"
+    embedded
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-entity
+      id="face"
+      mindar-face-default-face-occluder>
+    </a-entity>
+
+    <a-camera
+      active="false"
+      position="0 0 0">
+    </a-camera>
+
+  </a-scene>
+
+  <script>
+    document.querySelector('a-scene').addEventListener('arReady', () => {
+      const THREE = AFRAME.THREE;
+
+      // รูป Texture จาก GitHub Repository ของคุณ
+      const textureURL =
+        'https://raw.githubusercontent.com/ketareiei-design/Face-Texture/main/canonical_face_model_uv_visualization%20(1).png';
+
+      const textureLoader = new THREE.TextureLoader();
+
+      textureLoader.load(
+        textureURL,
+        (texture) => {
+          texture.colorSpace = THREE.SRGBColorSpace;
+
+          const face = document.querySelector('#face');
+          const mesh = face.getObject3D('mesh');
+
+          if (!mesh) {
+            console.error('ไม่พบ Face Mesh');
+            return;
+          }
+
+          if (mesh.material) {
+            mesh.material.dispose();
+          }
+
+          mesh.material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 0.85,
+            side: THREE.DoubleSide
+          });
+
+          mesh.frustumCulled = false;
+        },
+        undefined,
+        (error) => {
+          console.error('โหลดรูป Texture ไม่สำเร็จ:', error);
+        }
+      );
+    });
+  </script>
+</body>
+</html>
